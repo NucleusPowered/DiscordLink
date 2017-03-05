@@ -1,2 +1,2 @@
-# DiscordLink
-An experiement into a link with Discord!
+# Phonon
+An experimental link between Discord & Minecraft!
