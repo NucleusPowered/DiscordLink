@@ -50,10 +50,10 @@ shadowJar {
 
     }
 
-    relocate 'org.apache', 'com.kookykraftmc.relocate.org.apache'
-    relocate 'org.json', 'com.kookykraftmc.relocate.org.json'
-    relocate 'com.neovisionaries.ws.client', 'com.kookykraftmc.relocate.com.neovisionaries.ws.client'
-    relocate 'net.dv8tion.jda', 'com.kookykraftmc.relocate.net.dv8tion.jda'
+    relocate 'org.apache', 'io.github.nucleuspowered.phonon.relocate.org.apache'
+    relocate 'org.json', 'io.github.nucleuspowered.phonon.relocate.org.json'
+    relocate 'com.neovisionaries.ws.client', 'io.github.nucleuspowered.phonon.relocate.com.neovisionaries.ws.client'
+    relocate 'net.dv8tion.jda', 'io.github.nucleuspowered.phonon.relocate.net.dv8tion.jda'
 
     archiveName = "Phonon-${version}-plugin.jar"
 }
