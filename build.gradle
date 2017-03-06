@@ -9,12 +9,11 @@ plugins {
 project.ext.suffix = "-SNAPSHOT"
 
 group = 'io.github.nucleuspowered.phonon'
-version = '0.1.0'
+version = '0.1.0-SNAPSHOT'
 description = 'An experimental link between Discord & Minecraft'
 ext.url = 'http://nucleuspowered.org'
 
 repositories {
-    mavenCentral()
     jcenter()
     maven {
         name = 'sponge'
@@ -24,17 +23,17 @@ repositories {
         name 'drnaylor-minecraft'
         url 'http://repo.drnaylor.co.uk/artifactory/list/minecraft'
     }
-}
-
-compileJava {
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    maven {
+        name 'drnaylor'
+        url 'http://repo.drnaylor.co.uk/artifactory/list/quickstart'
+    }
 }
 
 shadowJar {
     configurations = [project.configurations.shadow]
     dependencies {
         include dependency('net.dv8tion:JDA')
+        include dependency('uk.co.drnaylor:quickstart-moduleloader')
         include dependency('org.apache.httpcomponents:httpcore:4.4.4')
         include dependency('org.apache.httpcomponents:httpclient:4.5.2')
         include dependency('org.apache.httpcomponents:httpcore-nio:4.4.4')
@@ -54,13 +53,14 @@ shadowJar {
     relocate 'org.json', 'io.github.nucleuspowered.phonon.relocate.org.json'
     relocate 'com.neovisionaries.ws.client', 'io.github.nucleuspowered.phonon.relocate.com.neovisionaries.ws.client'
     relocate 'net.dv8tion.jda', 'io.github.nucleuspowered.phonon.relocate.net.dv8tion.jda'
-
+    relocate 'uk.co.drnaylor', 'io.github.nucleuspowered.phonon.relocate.uk.co.drnaylor'
     archiveName = "Phonon-${version}-plugin.jar"
 }
 
 dependencies {
-    compile 'org.spongepowered:spongeapi:5.1.0'
-    compile 'net.dv8tion:JDA:3.0.BETA2_143'
+    compile('org.spongepowered:spongeapi:5.1.0')
+    compile('uk.co.drnaylor:quickstart-moduleloader:0.5.0')
+    compile('net.dv8tion:JDA:3.0.BETA2_143')
 }
 
 blossom {
