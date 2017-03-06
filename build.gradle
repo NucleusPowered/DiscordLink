@@ -32,15 +32,35 @@ compileJava {
 }
 
 shadowJar {
+    configurations = [project.configurations.shadow]
     dependencies {
-        include(dependency("net.dv8tion:JDA:3.0.BETA2_108"))
+        include dependency('net.dv8tion:JDA')
+        include dependency('org.apache.httpcomponents:httpcore:4.4.4')
+        include dependency('org.apache.httpcomponents:httpclient:4.5.2')
+        include dependency('org.apache.httpcomponents:httpcore-nio:4.4.4')
+        include dependency('org.apache.httpcomponents:httpasyncclient:4.1.1')
+        include dependency('com.mashape.unirest:unirest-java:1.4.9')
+        include dependency('org.apache.commons:commons-lang3:3.5')
+        include dependency('commons-logging:commons-logging:1.2')
+        include dependency('org.json:json:20160810')
+        include dependency('com.neovisionaries:nv-websocket-client:1.30')
+        include dependency('org.apache.commons:commons-collections4:4.1')
+        include dependency('net.java.dev.jna:jna:4.2.2')
+        include dependency('junit:junit:4.12')
+
     }
+
+    relocate 'org.apache', 'io.github.nucleuspowered.phonon.relocate.org.apache'
+    relocate 'org.json', 'io.github.nucleuspowered.phonon.relocate.org.json'
+    relocate 'com.neovisionaries.ws.client', 'io.github.nucleuspowered.phonon.relocate.com.neovisionaries.ws.client'
+    relocate 'net.dv8tion.jda', 'io.github.nucleuspowered.phonon.relocate.net.dv8tion.jda'
+
     archiveName = "Phonon-${version}-plugin.jar"
 }
 
 dependencies {
-    compile("org.spongepowered:spongeapi:5.1.0")
-    compile("net.dv8tion:JDA:3.0.BETA2_108")
+    compile 'org.spongepowered:spongeapi:5.1.0'
+    compile 'net.dv8tion:JDA:3.0.BETA2_143'
 }
 
 blossom {
