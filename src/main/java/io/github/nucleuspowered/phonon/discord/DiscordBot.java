@@ -4,15 +4,14 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import net.dv8tion.jda.core.requests.RestAction;
 
 import javax.security.auth.login.LoginException;
 import java.awt.*;
+import java.util.List;
+import java.util.Optional;
 
 public class DiscordBot {
     static JDA jda;
@@ -39,11 +38,11 @@ public class DiscordBot {
     }
 
     public static TextChannel getChannelById(String id) {
-        return jda.getTextChannelById(id);
+        return getJda().getTextChannelById(id);
     }
 
-    public static Guild getChannedByGuildId(String guildID) {
-        return jda.getGuildById(guildID);
+    public static List<TextChannel> getChannelsByGuildId(String guildID) {
+        return getJda().getGuildById(guildID).getTextChannels();
     }
 
     public static MessageEmbed.Field getEmbedField(String title, String description, boolean inline) {
@@ -89,6 +88,22 @@ public class DiscordBot {
 
     public static RestAction<Message> prepareToSendEmbed(MessageEmbed embed, TextChannel channel) {
         return channel.sendMessage(embed);
+    }
+
+    /**
+     * Used to get an active discord invite from a specific guild.
+     * @param guildID the guild id
+     */
+    public static Optional<Object> getActiveDiscordInvite(String guildID) {
+        List<Invite> invites = getJda().getGuildById(guildID).getInvites().complete();
+        for (Invite invite : invites) {
+            if (!invite.isTemporary() && invite.getUses() < invite.getMaxUses()) return Optional.of(invite);
+        }
+        return Optional.empty();
+    }
+
+    public static Guild getGuild(String id) {
+        return getJda().getGuildById(id);
     }
 
 }
