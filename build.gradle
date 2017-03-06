@@ -59,7 +59,7 @@ shadowJar {
 }
 
 dependencies {
-    compile "org.spongepowered:spongeapi:5.1.0"
+    compile 'org.spongepowered:spongeapi:5.1.0'
     compile 'net.dv8tion:JDA:3.0.BETA2_143'
 }
 
