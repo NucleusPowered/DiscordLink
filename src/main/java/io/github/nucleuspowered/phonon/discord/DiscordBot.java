@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 public class DiscordBot {
-    static DiscordBot instance;
+    private static DiscordBot instance;
 
-    JDA jda;
+    private JDA jda;
 
     public DiscordBot(String token) {
         try {
