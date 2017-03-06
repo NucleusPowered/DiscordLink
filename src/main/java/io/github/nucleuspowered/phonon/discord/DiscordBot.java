@@ -26,9 +26,7 @@ public class DiscordBot {
                     .setAutoReconnect(true)
                     .setEnableShutdownHook(true)
                     .buildAsync();
-        } catch (LoginException e) {
-            e.printStackTrace();
-        } catch (RateLimitedException e) {
+        } catch (LoginException | RateLimitedException e) {
             e.printStackTrace();
         }
     }
