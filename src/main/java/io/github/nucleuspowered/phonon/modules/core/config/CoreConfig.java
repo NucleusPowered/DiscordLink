@@ -9,17 +9,24 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 @ConfigSerializable
 public class CoreConfig {
 
+    @Setting("bot-game")
+    private String game = "";
+
+    @Setting("bot-token")
+    private String token = "";
+
     @Setting("bot-name")
     private String name = "Phonon";
 
-    @Setting("discord-token")
-    private String discordToken = "";
+    public String getGame() {
+        return game;
+    }
 
     public String getName() {
         return name;
     }
 
-    public String getDiscordToken() {
-        return discordToken;
+    public String getToken() {
+        return token;
     }
 }
