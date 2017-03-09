@@ -14,7 +14,7 @@ public abstract class PhononSubcommand implements CommandExecutor {
     private static CommandElement[] empty = new CommandElement[0];
     @Inject private Phonon plugin;
 
-    protected Phonon getPlugin() {
+    protected final Phonon getPlugin() {
         return this.plugin;
     }
 
