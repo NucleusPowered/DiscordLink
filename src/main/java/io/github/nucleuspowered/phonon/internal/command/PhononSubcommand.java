@@ -14,11 +14,11 @@ public abstract class PhononSubcommand implements CommandExecutor {
     private static CommandElement[] empty = new CommandElement[0];
     @Inject private Phonon plugin;
 
-    public CommandElement[] getArguments() {
-        return empty;
+    protected Phonon getPlugin() {
+        return this.plugin;
     }
 
-    @Override public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
-        return null;
+    public CommandElement[] getArguments() {
+        return empty;
     }
 }

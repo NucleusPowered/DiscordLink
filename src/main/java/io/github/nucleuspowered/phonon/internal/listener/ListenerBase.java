@@ -8,5 +8,5 @@ import io.github.nucleuspowered.phonon.Phonon;
  */
 public class ListenerBase {
 
-    @Inject private Phonon plugin;
+    @Inject protected Phonon plugin;
 }

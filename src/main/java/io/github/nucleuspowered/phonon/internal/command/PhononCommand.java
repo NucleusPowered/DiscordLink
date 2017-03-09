@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 @NonnullByDefault
-public class PhononCommand implements CommandCallable {
+public final class PhononCommand implements CommandCallable {
 
     private InputTokenizer tokenizer = InputTokenizer.quotedStrings(false);
 
@@ -115,23 +115,40 @@ public class PhononCommand implements CommandCallable {
         throw new CommandPermissionException();
     }
 
+    private String getFirst(CommandArgs a) {
+        try {
+            return a.peek().toLowerCase();
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     @Override public List<String> getSuggestions(CommandSource source, String arguments, @Nullable Location<World> targetPosition)
             throws CommandException {
         final CommandArgs args = new CommandArgs(arguments, tokenizer.tokenize(arguments, false));
+        final String firstArg;
 
-        Optional<CommandSpec> optionalSpec = getSpec(args);
-        if (optionalSpec.isPresent()) {
-            CommandSpec spec = optionalSpec.get();
-            CommandContext context = new CommandContext();
-            spec.checkPermission(source);
-            return spec.complete(source, args, context);
+        try {
+            firstArg = args.peek().toLowerCase();
+        } catch (Exception e) {
+            return Lists.newArrayList(subCommands.keySet());
+        }
+
+        try {
+            Optional<CommandSpec> optionalSpec = getSpec(args);
+            if (optionalSpec.isPresent()) {
+                CommandSpec spec = optionalSpec.get();
+                CommandContext context = new CommandContext();
+                spec.checkPermission(source);
+                return spec.complete(source, args, context);
+            }
+        } catch (Exception e) {
+            // ignored - most likely not a sub command.
         }
 
         // Only if this is the first arg.
-        if (!args.hasNext()) {
-            // Get the last argument, use it for the subcommands
-            final String arg = args.getAll().get(0);
-            return subCommands.entrySet().stream().filter(x -> x.getKey().startsWith(arg))
+        if (args.getAll().size() == 1) {
+            return subCommands.entrySet().stream().filter(x -> x.getKey().startsWith(firstArg))
                     .filter(x -> x.getValue().testPermission(source))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
