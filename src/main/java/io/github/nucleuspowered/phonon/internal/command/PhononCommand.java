@@ -45,26 +45,21 @@ public final class PhononCommand implements CommandCallable {
     public boolean registerSubCommand(PhononSubcommand subcommandToRegister) {
         // Work out how the sub command system will work - probably annotation based, but not sure yet.
         // By definition, all subcommands will be lower case
-        Command annotation = subcommandToRegister.getClass().getAnnotation(Command.class);
-        if (annotation != null) {
-            // Register the command.
-            Collection<String> sc = Arrays.asList(annotation.value());
-            if (subCommands.keySet().stream().map(String::toLowerCase).noneMatch(sc::contains)) {
-                // We can register the aliases. Create the CommandSpec
-                // We might want to add descriptions in.
-                CommandSpec.Builder specbuilder = CommandSpec.builder();
-                if (!annotation.permission().isEmpty()) {
-                    specbuilder.permission(annotation.permission());
-                }
 
-                CommandSpec spec = specbuilder
-                    .arguments(subcommandToRegister.getArguments())
-                    .executor(subcommandToRegister)
-                    .build();
+        // Register the command.
+        Collection<String> sc = Arrays.asList(subcommandToRegister.getAliases());
+        if (subCommands.keySet().stream().map(String::toLowerCase).noneMatch(sc::contains)) {
+            // We can register the aliases. Create the CommandSpec
+            // We might want to add descriptions in.
+            CommandSpec.Builder specbuilder = CommandSpec.builder();
+            subcommandToRegister.getPermission().ifPresent(specbuilder::permission);
+            CommandSpec spec = specbuilder
+                .arguments(subcommandToRegister.getArguments())
+                .executor(subcommandToRegister)
+                .build();
 
-                sc.forEach(x -> subCommands.put(x.toLowerCase(), spec));
-                return true;
-            }
+            sc.forEach(x -> subCommands.put(x.toLowerCase(), spec));
+            return true;
         }
 
         return false;

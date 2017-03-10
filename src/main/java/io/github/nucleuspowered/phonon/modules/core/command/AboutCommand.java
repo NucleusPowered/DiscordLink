@@ -1,6 +1,5 @@
 package io.github.nucleuspowered.phonon.modules.core.command;
 
-import io.github.nucleuspowered.phonon.internal.command.Command;
 import io.github.nucleuspowered.phonon.internal.command.PhononSubcommand;
 import org.spongepowered.api.command.CommandException;
 import org.spongepowered.api.command.CommandResult;
@@ -11,11 +10,20 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 
+import java.util.Optional;
+
 @NonnullByDefault
-@Command(value = "about", permission = "phonon.about.base")
 public class AboutCommand extends PhononSubcommand {
 
     private final Text nameKey = Text.of("name");
+
+    @Override protected String[] getAliases() {
+        return new String[] { "about" };
+    }
+
+    @Override protected Optional<String> getPermission() {
+        return Optional.of("phonon.about.base");
+    }
 
     @Override public CommandElement[] getArguments() {
         return new CommandElement[] {
