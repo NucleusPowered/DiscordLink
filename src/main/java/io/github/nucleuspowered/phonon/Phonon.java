@@ -10,6 +10,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.github.nucleuspowered.phonon.internal.command.PhononCommand;
 import io.github.nucleuspowered.phonon.qsml.InjectorModule;
 import io.github.nucleuspowered.phonon.qsml.PhononLoggerProxy;
 import io.github.nucleuspowered.phonon.qsml.PhononModuleConstructor;
@@ -25,7 +26,6 @@ import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
-import uk.co.drnaylor.quickstart.ModuleContainer;
 import uk.co.drnaylor.quickstart.config.AbstractConfigAdapter;
 import uk.co.drnaylor.quickstart.config.TypedAbstractConfigAdapter;
 import uk.co.drnaylor.quickstart.exceptions.IncorrectAdapterTypeException;
@@ -52,11 +52,11 @@ public class Phonon {
 
     private final Logger logger;
     private final ConfigurationLoader<CommentedConfigurationNode> loader;
-    private final SubInjectorModule subInjectorModule = new SubInjectorModule(this);
+    private final SubInjectorModule subInjectorModule = new SubInjectorModule();
 
+    private final PhononCommand phononCommand;
     private Injector phononInjector;
-    private ModuleContainer container;
-    private boolean isErrored = false;
+    private DiscoveryModuleContainer container;
 
     // Using a map for later implementation of reloadable modules.
     private Multimap<String, Action> reloadables = HashMultimap.create();
@@ -65,22 +65,22 @@ public class Phonon {
     public Phonon(Logger logger, @DefaultConfig(sharedRoot = false) ConfigurationLoader<CommentedConfigurationNode> loader) {
         this.logger = logger;
         this.loader = loader;
-        this.phononInjector = Guice.createInjector(new InjectorModule(this));
+        this.phononCommand = new PhononCommand();
+        this.phononInjector = Guice.createInjector(new InjectorModule(this, this.phononCommand));
     }
 
     @Listener
-    private void onPreInit(GamePreInitializationEvent event) {
+    public void onPreInit(GamePreInitializationEvent event) {
         try {
-            container = DiscoveryModuleContainer.builder()
+            this.container = DiscoveryModuleContainer.builder()
                     .setPackageToScan("io.github.nucleuspowered.phonon.modules") // All modules will be in here.
                     .setLoggerProxy(new PhononLoggerProxy(this.logger))
                     .setConstructor(new PhononModuleConstructor(this)) // How modules are constructed
                     .setConfigurationLoader(loader)
                     .setOnEnable(this::updateInjector) // Before the enable phase, update the Guice injector.
-                    .build();
-        } catch (QuickStartModuleDiscoveryException e) {
+                    .build(true);
+        } catch (Exception e) {
             e.printStackTrace();
-            isErrored = true;
             onError();
         }
     }
@@ -88,12 +88,13 @@ public class Phonon {
     @Listener
     public void onInit(GameInitializationEvent event) {
         try {
-            container.loadModules(true);
+            this.container.loadModules(true);
         } catch (QuickStartModuleLoaderException.Construction | QuickStartModuleLoaderException.Enabling construction) {
             construction.printStackTrace();
-            isErrored = true;
             onError();
         }
+
+        Sponge.getCommandManager().register(this, this.phononCommand, "phonon");
     }
 
     @Listener
@@ -202,5 +203,14 @@ public class Phonon {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Gets the {@link DiscoveryModuleContainer}
+     *
+     * @return The {@link DiscoveryModuleContainer}
+     */
+    public DiscoveryModuleContainer getModuleContainer() {
+        return this.container;
     }
 }

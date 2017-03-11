@@ -1,6 +1,7 @@
 package io.github.nucleuspowered.phonon.qsml;
 
 import com.google.common.collect.Maps;
+import com.google.inject.AbstractModule;
 import io.github.nucleuspowered.phonon.Phonon;
 
 import java.util.Map;
@@ -9,13 +10,9 @@ import java.util.function.Supplier;
 /**
  * This {@link SubInjectorModule} allows for types to be registered dynamically.
  */
-public class SubInjectorModule extends InjectorModule {
+public class SubInjectorModule extends AbstractModule {
 
     private final Map<Class<?>, Supplier<?>> bindings = Maps.newHashMap();
-
-    public SubInjectorModule(Phonon phonon) {
-        super(phonon);
-    }
 
     public <T> boolean addBinding(Class<T> clazz, Supplier<T> supplier) {
         if (!bindings.containsKey(clazz)) {
@@ -31,8 +28,6 @@ public class SubInjectorModule extends InjectorModule {
     }
 
     @Override protected void configure() {
-        super.configure();
-
         bindings.keySet().forEach(this::get);
     }
 
