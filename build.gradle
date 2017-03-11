@@ -4,6 +4,7 @@ plugins {
     id 'ninja.miserable.blossom' version '1.0.1'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
     id 'org.spongepowered.plugin' version '0.6'
+    id 'maven'
 }
 
 project.ext.suffix = "-SNAPSHOT"
