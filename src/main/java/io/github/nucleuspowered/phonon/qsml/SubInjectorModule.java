@@ -2,7 +2,6 @@ package io.github.nucleuspowered.phonon.qsml;
 
 import com.google.common.collect.Maps;
 import com.google.inject.AbstractModule;
-import io.github.nucleuspowered.phonon.Phonon;
 
 import java.util.Map;
 import java.util.function.Supplier;

@@ -10,10 +10,11 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
-import javax.security.auth.login.LoginException;
 import java.awt.Color;
 import java.util.List;
 import java.util.Optional;
+
+import javax.security.auth.login.LoginException;
 
 public class DiscordBot {
     private static DiscordBot instance;
