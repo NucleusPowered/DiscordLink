@@ -3,6 +3,7 @@ package io.github.nucleuspowered.phonon.qsml.modulespec;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.phonon.Phonon;
+import io.github.nucleuspowered.phonon.internal.Reloadable;
 import io.github.nucleuspowered.phonon.internal.command.PhononCommand;
 import io.github.nucleuspowered.phonon.internal.command.PhononSubcommand;
 import io.github.nucleuspowered.phonon.internal.listener.ConditionalListener;
@@ -63,7 +64,18 @@ public abstract class StandardModule implements Module {
         final Injector injector = this.phononPlugin.getPhononInjector();
 
         // Add the subcommands.
-        subcommandList.forEach(x -> phononCommand.registerSubCommand(injector.getInstance(x)));
+        subcommandList.forEach(x -> {
+            PhononSubcommand subcommand = injector.getInstance(x);
+            if (subcommand instanceof Reloadable) {
+                Reloadable r = (Reloadable)subcommand;
+                this.phononPlugin.addReloadable(this.moduleId, r::onReload);
+
+                // Reload it now
+                r.onReload();
+            }
+
+            this.phononCommand.registerSubCommand(subcommand);
+        });
 
         // Now, listeners.
         registerListeners(this.phononPlugin, injector);
@@ -79,6 +91,14 @@ public abstract class StandardModule implements Module {
         listenerClass.forEach(x -> {
             ConditionalListener cl = x.getAnnotation(ConditionalListener.class);
             ListenerBase base = injector.getInstance(x);
+            if (base instanceof Reloadable) {
+                Reloadable r = (Reloadable)base;
+                this.phononPlugin.addReloadable(this.moduleId, r::onReload);
+
+                // Reload it now
+                r.onReload();
+            }
+
             if (cl != null) {
                 // Create the reloadable.
                 try {
