@@ -77,6 +77,7 @@ public class Phonon {
                     .setConstructor(new PhononModuleConstructor(this)) // How modules are constructed
                     .setConfigurationLoader(loader)
                     .setOnEnable(this::updateInjector) // Before the enable phase, update the Guice injector.
+                    .setNoMergeIfPresent(true)
                     .build(true);
         } catch (Exception e) {
             e.printStackTrace();
