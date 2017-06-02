@@ -1,9 +1,14 @@
 package io.github.nucleuspowered.phonon.discord;
 
+import io.github.nucleuspowered.phonon.Phonon;
+import io.github.nucleuspowered.phonon.modules.core.CoreModule;
+import io.github.nucleuspowered.phonon.modules.core.config.CoreConfig;
+import io.github.nucleuspowered.phonon.modules.core.config.CoreConfigAdapter;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -17,23 +22,25 @@ import java.util.Optional;
 import javax.security.auth.login.LoginException;
 
 public class DiscordBot {
-    private static DiscordBot instance;
 
     private JDA jda;
 
-    public DiscordBot(String token) {
-        try {
-            jda = new JDABuilder(AccountType.BOT)
-                    .setToken(token)
-                    .setAudioEnabled(false)
-                    .setAutoReconnect(true)
-                    .setEnableShutdownHook(true)
-                    .buildAsync();
-        } catch (LoginException | RateLimitedException e) {
-            e.printStackTrace();
+    public void onEnable(Phonon phononPlugin) {
+        if (phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).isPresent()) {
+            CoreConfig config = phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get().getNodeOrDefault();
+            String token = config.getToken();
+            try {
+                jda = new JDABuilder(AccountType.BOT)
+                        .setToken(token)
+                        .setGame(Game.of(config.getGame()))
+                        .setAudioEnabled(false)
+                        .setAutoReconnect(true)
+                        .setEnableShutdownHook(true)
+                        .buildAsync();
+            } catch (LoginException | RateLimitedException e) {
+                e.printStackTrace();
+            }
         }
-
-        instance = this;
     }
 
     public JDA getJda() {
@@ -103,9 +110,5 @@ public class DiscordBot {
 
     public Optional<Guild> getGuild(String id) {
         return Optional.ofNullable(getJda().getGuildById(id));
-    }
-
-    public static DiscordBot getInstance() {
-        return instance;
     }
 }
