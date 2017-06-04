@@ -3,6 +3,7 @@ package io.github.nucleuspowered.phonon.qsml.modulespec;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.phonon.Phonon;
+import io.github.nucleuspowered.phonon.discord.DiscordBot;
 import io.github.nucleuspowered.phonon.internal.Reloadable;
 import io.github.nucleuspowered.phonon.internal.command.PhononCommand;
 import io.github.nucleuspowered.phonon.internal.command.PhononSubcommand;
@@ -28,6 +29,7 @@ public abstract class StandardModule implements Module {
     private final String moduleName;
     @Inject private Phonon phononPlugin;
     @Inject private PhononCommand phononCommand;
+    @Inject private DiscordBot discordBot;
 
     private final String packageName;
 
@@ -48,6 +50,10 @@ public abstract class StandardModule implements Module {
 
     protected Phonon getPhononPlugin() {
         return this.phononPlugin;
+    }
+
+    protected DiscordBot getBot() {
+        return this.discordBot;
     }
 
     @Override public final void onEnable() {

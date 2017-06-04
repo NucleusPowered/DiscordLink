@@ -10,6 +10,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import io.github.nucleuspowered.phonon.discord.DiscordBot;
 import io.github.nucleuspowered.phonon.internal.command.PhononCommand;
 import io.github.nucleuspowered.phonon.qsml.InjectorModule;
 import io.github.nucleuspowered.phonon.qsml.PhononLoggerProxy;
@@ -65,7 +66,7 @@ public class Phonon {
         this.logger = logger;
         this.loader = loader;
         this.phononCommand = new PhononCommand();
-        this.phononInjector = Guice.createInjector(new InjectorModule(this, this.phononCommand));
+        this.phononInjector = Guice.createInjector(new InjectorModule(this, this.phononCommand, new DiscordBot()));
     }
 
     @Listener

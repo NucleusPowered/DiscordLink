@@ -15,5 +15,6 @@ public class CoreModule extends ConfigurableModule<CoreConfigAdapter> {
 
     @Override public void phononEnable() {
         super.phononEnable();
+        this.getBot().onEnable(getPhononPlugin());
     }
 }

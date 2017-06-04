@@ -15,15 +15,8 @@ public class CoreConfig {
     @Setting("bot-token")
     private String token = "";
 
-    @Setting("bot-name")
-    private String name = "Phonon";
-
     public String getGame() {
         return game;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getToken() {
