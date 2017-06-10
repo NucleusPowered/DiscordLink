@@ -30,7 +30,7 @@ repositories {
     }
 }
 
-def qsmlDep = 'uk.co.drnaylor:quickstart-moduleloader:0.7.0'
+def qsmlDep = 'uk.co.drnaylor:quickstart-moduleloader:0.8.0'
 def jdaDep = 'net.dv8tion:JDA:3.0.BETA2_143'
 def spongeapi = '5.1.0'
 
@@ -67,7 +67,7 @@ shadowJar {
         include dependency('org.apache.commons:commons-collections4:4.1')
         include dependency('net.java.dev.jna:jna:4.2.2')
         include dependency('junit:junit:4.12')
-
+        include(dependency("io.github.lukehutch:fast-classpath-scanner"))
     }
 
     relocate 'org.apache', 'io.github.nucleuspowered.phonon.relocate.org.apache'
@@ -75,6 +75,7 @@ shadowJar {
     relocate 'com.neovisionaries.ws.client', 'io.github.nucleuspowered.phonon.relocate.com.neovisionaries.ws.client'
     relocate 'net.dv8tion.jda', 'io.github.nucleuspowered.phonon.relocate.net.dv8tion.jda'
     relocate 'uk.co.drnaylor', 'io.github.nucleuspowered.phonon.relocate.uk.co.drnaylor'
+    relocate 'io.github.lukehutch', 'io.github.nucleuspowered.phonon.relocate.io.github.lukehutch'
     archiveName = "Phonon-${version}-plugin.jar"
 }
 
