@@ -4,6 +4,7 @@ import io.github.nucleuspowered.phonon.Phonon;
 import io.github.nucleuspowered.phonon.modules.core.CoreModule;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfigAdapter;
+import io.github.nucleuspowered.phonon.discord.command.CommandListener;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -13,6 +14,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 import java.awt.Color;
@@ -37,6 +39,7 @@ public class DiscordBot {
                         .setAutoReconnect(true)
                         .setEnableShutdownHook(true)
                         .buildAsync();
+                jda.addEventListener(new CommandListener(phononPlugin));
             } catch (LoginException | RateLimitedException e) {
                 e.printStackTrace();
             }
@@ -110,5 +113,15 @@ public class DiscordBot {
 
     public Optional<Guild> getGuild(String id) {
         return Optional.ofNullable(getJda().getGuildById(id));
+    }
+
+    public Optional<User> getUserByDiscriminator(String name, String discriminator) {
+        for (User user : this.getJda().getUsersByName(name, true)) {
+            if (user.getDiscriminator().equals(discriminator)) {
+                return Optional.of(user);
+            }
+        }
+
+        return Optional.empty();
     }
 }
