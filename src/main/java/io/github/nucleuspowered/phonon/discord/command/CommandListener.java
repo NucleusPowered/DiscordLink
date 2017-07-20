@@ -5,7 +5,6 @@ import static org.spongepowered.api.util.SpongeApiTranslationHelper.t;
 import io.github.nucleuspowered.phonon.Phonon;
 import io.github.nucleuspowered.phonon.discord.DiscordCommandSource;
 import io.github.nucleuspowered.phonon.modules.core.CoreModule;
-import io.github.nucleuspowered.phonon.modules.core.command.BotTestCommand;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfigAdapter;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -17,8 +16,9 @@ import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.args.parsing.InputTokenizer;
 
-import java.util.ArrayList;
+import java.lang.reflect.Modifier;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandListener extends ListenerAdapter {
 
@@ -47,11 +47,21 @@ public class CommandListener extends ListenerAdapter {
                 arguments = event.getMessage().getRawContent().substring(end + 1);
             }
 
-            List<IDiscordCommand> commands = new ArrayList<>();
-            BotTestCommand testCommand = this.phononPlugin.getPhononInjector().getInstance(BotTestCommand.class);
-            commands.add(testCommand);
-            commands.forEach(command -> {
-                BotCommand annotation = command.getClass().getAnnotation(BotCommand.class);
+            @SuppressWarnings("unchecked")
+            List<Class<? extends IDiscordCommand>> commands = this.phononPlugin.getModuleContainer().getLoadedClasses().stream()
+
+                    .filter(IDiscordCommand.class::isAssignableFrom)
+                    .filter(x -> !Modifier.isAbstract(x.getModifiers()) && !Modifier.isInterface(x.getModifiers()))
+                    .map(x -> (Class<? extends IDiscordCommand>)x)
+                    .collect(Collectors.toList());
+
+            commands.forEach(commandClass -> {
+                IDiscordCommand command = this.phononPlugin.getPhononInjector().getInstance(commandClass);
+                BotCommand annotation = commandClass.getAnnotation(BotCommand.class);
+
+                if (annotation == null) {
+                    return;
+                }
 
                 for (String alias : annotation.value()) {
                     if (alias.equals(commandName)) {
@@ -80,4 +90,5 @@ public class CommandListener extends ListenerAdapter {
             });
         }
     }
+
 }
