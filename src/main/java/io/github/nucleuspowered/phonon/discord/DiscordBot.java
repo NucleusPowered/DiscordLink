@@ -31,6 +31,10 @@ public class DiscordBot {
         if (phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).isPresent()) {
             CoreConfig config = phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get().getNodeOrDefault();
             String token = config.getToken();
+            if (config.getPrefix().equals("/")) {
+                phononPlugin.getLogger().warn("Using '/' as a command prefix is highly discouraged.");
+            }
+
             try {
                 jda = new JDABuilder(AccountType.BOT)
                         .setToken(token)

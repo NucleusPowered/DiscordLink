@@ -17,21 +17,43 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.args.parsing.InputTokenizer;
 
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CommandListener extends ListenerAdapter {
 
-    private Phonon phononPlugin;
-    private CommandElement args;
+    private final Phonon phononPlugin;
+    private Map<String, IDiscordCommand> aliases;
 
+    @SuppressWarnings("unchecked")
     public CommandListener(Phonon phononPlugin) {
         this.phononPlugin = phononPlugin;
+        List<Class<? extends IDiscordCommand>> commands = this.phononPlugin.getModuleContainer().getLoadedClasses().stream()
+                .filter(IDiscordCommand.class::isAssignableFrom)
+                .filter(x -> !Modifier.isAbstract(x.getModifiers()) && !Modifier.isInterface(x.getModifiers()))
+                .map(x -> (Class<? extends IDiscordCommand>) x)
+                .collect(Collectors.toList());
+
+        this.aliases = new HashMap<>();
+        commands.forEach(commandClass -> {
+            IDiscordCommand command = this.phononPlugin.getPhononInjector().getInstance(commandClass);
+            BotCommand annotation = commandClass.getAnnotation(BotCommand.class);
+
+            if (annotation == null) {
+                return;
+            }
+            for (String alias : annotation.value()) {
+                aliases.put(alias, command);
+            }
+        });
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         CoreConfig config = this.phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get().getNodeOrDefault();
+
         if (event.getMessage().getRawContent().startsWith(config.getPrefix()) && !event.getMessage().getAuthor().isBot() &&
                 event.getTextChannel() != null) {
             DiscordCommandSource source = new DiscordCommandSource(event.getAuthor(), event.getTextChannel());
@@ -47,47 +69,36 @@ public class CommandListener extends ListenerAdapter {
                 arguments = event.getMessage().getRawContent().substring(end + 1);
             }
 
-            @SuppressWarnings("unchecked")
-            List<Class<? extends IDiscordCommand>> commands = this.phononPlugin.getModuleContainer().getLoadedClasses().stream()
 
-                    .filter(IDiscordCommand.class::isAssignableFrom)
-                    .filter(x -> !Modifier.isAbstract(x.getModifiers()) && !Modifier.isInterface(x.getModifiers()))
-                    .map(x -> (Class<? extends IDiscordCommand>)x)
-                    .collect(Collectors.toList());
+            if (aliases.containsKey(commandName)) {
+                IDiscordCommand command = aliases.get(commandName);
+                CommandElement args= null;
+                try {
+                    CommandArgs commandArgs = new CommandArgs(arguments,
+                            InputTokenizer.quotedStrings(false).tokenize(arguments, true));
+                    CommandContext context = new CommandContext();
+                    args = GenericArguments.seq(command.getArgs());
+                    args.parse(source, commandArgs, context);
+                    if (commandArgs.hasNext()) {
+                        commandArgs.next();
+                        throw commandArgs.createError(t("Invalid arguments!"));
+                    }
+                    command.execute(event.getAuthor(), context, event.getChannel());
+                } catch (ArgumentParseException e) {
+                    String message = "Invalid Arguments";
+                    if (e.getMessage() != null) {
+                        message = e.getMessage();
+                    }
 
-            commands.forEach(commandClass -> {
-                IDiscordCommand command = this.phononPlugin.getPhononInjector().getInstance(commandClass);
-                BotCommand annotation = commandClass.getAnnotation(BotCommand.class);
-
-                if (annotation == null) {
-                    return;
-                }
-
-                for (String alias : annotation.value()) {
-                    if (alias.equals(commandName)) {
-                        try {
-                            CommandArgs commandArgs = new CommandArgs(arguments,
-                                    InputTokenizer.quotedStrings(false).tokenize(arguments, true));
-                            CommandContext context = new CommandContext();
-                            this.args = GenericArguments.seq(command.getArgs());
-                            this.args.parse(source, commandArgs, context);
-                            if (commandArgs.hasNext()) {
-                                commandArgs.next();
-                                throw commandArgs.createError(t("Invalid arguments!"));
-                            }
-                            command.execute(event.getAuthor(), context, event.getChannel());
-                        } catch (ArgumentParseException e) {
-                            String message = "Invalid Arguments";
-                            if (e.getMessage() != null) {
-                                message = e.getMessage();
-                            }
-
-                            event.getChannel().sendMessage(message + System.lineSeparator() +
-                                    config.getPrefix() + commandName + this.args.getUsage(source).toPlain()).queue();
-                        }
+                    if (args == null) {
+                        event.getChannel().sendMessage(message);
+                    } else {
+                        event.getChannel().sendMessage(message + System.lineSeparator() +
+                                config.getPrefix() + commandName + args.getUsage(source).toPlain()).queue();
                     }
                 }
-            });
+                event.getMessage().delete().queue();
+            }
         }
     }
 

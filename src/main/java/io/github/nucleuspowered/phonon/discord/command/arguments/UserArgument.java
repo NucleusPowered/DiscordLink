@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 
 public class UserArgument extends CommandElement {
 
-    private DiscordBot bot;
+    private final DiscordBot bot;
 
     public UserArgument(@Nullable Text key, DiscordBot bot) {
         super(key);
