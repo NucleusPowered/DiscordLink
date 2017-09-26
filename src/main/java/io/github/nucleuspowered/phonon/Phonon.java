@@ -214,4 +214,8 @@ public class Phonon {
     public DiscoveryModuleContainer getModuleContainer() {
         return this.container;
     }
+
+    public Logger getLogger() {
+        return this.logger;
+    }
 }
