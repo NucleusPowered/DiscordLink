@@ -18,14 +18,18 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.security.auth.login.LoginException;
 
 public class DiscordBot {
 
     private JDA jda;
+    private Map<String, UUID> codes;
 
     public void onEnable(Phonon phononPlugin) {
         if (phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).isPresent()) {
@@ -35,6 +39,7 @@ public class DiscordBot {
                 phononPlugin.getLogger().warn("Using '/' as a command prefix is highly discouraged.");
             }
 
+            codes = new HashMap<>();
             try {
                 jda = new JDABuilder(AccountType.BOT)
                         .setToken(token)
@@ -52,6 +57,10 @@ public class DiscordBot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public Map<String, UUID> getCodes() {
+        return this.codes;
     }
 
     public Optional<TextChannel> getChannelById(String id) {

@@ -54,9 +54,8 @@ public class CommandListener extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         CoreConfig config = this.phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get().getNodeOrDefault();
 
-        if (event.getMessage().getRawContent().startsWith(config.getPrefix()) && !event.getMessage().getAuthor().isBot() &&
-                event.getTextChannel() != null) {
-            DiscordCommandSource source = new DiscordCommandSource(event.getAuthor(), event.getTextChannel());
+        if (event.getMessage().getRawContent().startsWith(config.getPrefix()) && !event.getMessage().getAuthor().isBot()) {
+            DiscordCommandSource source = new DiscordCommandSource(event.getAuthor(), event.getChannel());
 
             int end = event.getMessage().getRawContent().indexOf(" ");
             String commandName;
