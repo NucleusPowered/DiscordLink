@@ -1,10 +1,10 @@
 package io.github.nucleuspowered.phonon.discord;
 
 import io.github.nucleuspowered.phonon.Phonon;
+import io.github.nucleuspowered.phonon.discord.command.CommandListener;
 import io.github.nucleuspowered.phonon.modules.core.CoreModule;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfigAdapter;
-import io.github.nucleuspowered.phonon.discord.command.CommandListener;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -18,14 +18,18 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 
 import java.awt.Color;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.security.auth.login.LoginException;
 
 public class DiscordBot {
 
     private JDA jda;
+    private Map<String, UUID> codes;
 
     public void onEnable(Phonon phononPlugin) {
         if (phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).isPresent()) {
@@ -35,14 +39,20 @@ public class DiscordBot {
                 phononPlugin.getLogger().warn("Using '/' as a command prefix is highly discouraged.");
             }
 
+            codes = new HashMap<>();
             try {
+                if (config.getToken().isEmpty()) {
+                    return;
+                }
                 jda = new JDABuilder(AccountType.BOT)
                         .setToken(token)
-                        .setGame(Game.of(config.getGame()))
                         .setAudioEnabled(false)
                         .setAutoReconnect(true)
                         .setEnableShutdownHook(true)
                         .buildAsync();
+                if (!config.getGame().isEmpty()) {
+                    jda.getPresence().setGame(Game.of(config.getGame()));
+                }
                 jda.addEventListener(new CommandListener(phononPlugin));
             } catch (LoginException | RateLimitedException e) {
                 e.printStackTrace();
@@ -52,6 +62,10 @@ public class DiscordBot {
 
     public JDA getJda() {
         return jda;
+    }
+
+    public Map<String, UUID> getCodes() {
+        return this.codes;
     }
 
     public Optional<TextChannel> getChannelById(String id) {

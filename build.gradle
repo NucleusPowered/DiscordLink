@@ -31,7 +31,7 @@ repositories {
 }
 
 def qsmlDep = 'uk.co.drnaylor:quickstart-moduleloader:0.8.2'
-def jdaDep = 'net.dv8tion:JDA:3.0.BETA2_143'
+def jdaDep = 'net.dv8tion:JDA:3.3.0_260'
 def spongeapi = '5.1.0'
 
 dependencies {
@@ -63,11 +63,14 @@ shadowJar {
         include dependency('org.apache.commons:commons-lang3:3.5')
         include dependency('commons-logging:commons-logging:1.2')
         include dependency('org.json:json:20160810')
-        include dependency('com.neovisionaries:nv-websocket-client:1.30')
+        include dependency('com.neovisionaries:nv-websocket-client:2.2')
         include dependency('org.apache.commons:commons-collections4:4.1')
-        include dependency('net.java.dev.jna:jna:4.2.2')
+        include dependency('net.java.dev.jna:jna:4.4.0')
         include dependency('junit:junit:4.12')
-        include(dependency("io.github.lukehutch:fast-classpath-scanner"))
+        include dependency('io.github.lukehutch:fast-classpath-scanner')
+        include dependency('com.squareup.okhttp3:okhttp:3.8.1')
+        include dependency('com.squareup.okio:okio:1.13.0')
+        include dependency('net.sf.trove4j:trove4j:3.0.3')
     }
 
     relocate 'org.apache', 'io.github.nucleuspowered.phonon.relocate.org.apache'
@@ -76,6 +79,9 @@ shadowJar {
     relocate 'net.dv8tion.jda', 'io.github.nucleuspowered.phonon.relocate.net.dv8tion.jda'
     relocate 'uk.co.drnaylor', 'io.github.nucleuspowered.phonon.relocate.uk.co.drnaylor'
     relocate 'io.github.lukehutch', 'io.github.nucleuspowered.phonon.relocate.io.github.lukehutch'
+    relocate 'com.squareup.okhttp3', 'io.github.nucleuspowered.phonon.relocate.com.squareup.okhttp3'
+    relocate 'com.squareup.okio', 'io.github.nucleuspowered.phonon.relocate.com.squareup.okio'
+    relocate 'net.sf.trove4j', 'io.github.nucleuspowered.phonon.relocate.net.sf.trove4j'
     archiveName = "Phonon-${version}-plugin.jar"
 }
 

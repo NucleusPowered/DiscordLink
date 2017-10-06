@@ -8,19 +8,26 @@ import static io.github.nucleuspowered.phonon.PluginInfo.VERSION;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.reflect.TypeToken;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.phonon.discord.DiscordBot;
 import io.github.nucleuspowered.phonon.internal.command.PhononCommand;
+import io.github.nucleuspowered.phonon.internal.configurate.BaseConfig;
 import io.github.nucleuspowered.phonon.qsml.InjectorModule;
 import io.github.nucleuspowered.phonon.qsml.PhononLoggerProxy;
 import io.github.nucleuspowered.phonon.qsml.PhononModuleConstructor;
 import io.github.nucleuspowered.phonon.qsml.SubInjectorModule;
 import io.github.nucleuspowered.phonon.util.Action;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.ConfigurationOptions;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.objectmapping.GuiceObjectMapperFactory;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
@@ -35,6 +42,10 @@ import uk.co.drnaylor.quickstart.exceptions.QuickStartModuleLoaderException;
 import uk.co.drnaylor.quickstart.modulecontainers.DiscoveryModuleContainer;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -55,6 +66,9 @@ public class Phonon {
     private final SubInjectorModule subInjectorModule = new SubInjectorModule();
 
     private final PhononCommand phononCommand;
+    private final Path configDir;
+    private GuiceObjectMapperFactory factory;
+    private Map<Class<? extends BaseConfig>, BaseConfig> configs;
     private Injector phononInjector;
     private DiscoveryModuleContainer container;
 
@@ -62,9 +76,13 @@ public class Phonon {
     private Multimap<String, Action> reloadables = HashMultimap.create();
 
     @Inject
-    public Phonon(Logger logger, @DefaultConfig(sharedRoot = false) ConfigurationLoader<CommentedConfigurationNode> loader) {
+    public Phonon(Logger logger, @DefaultConfig(sharedRoot = false) ConfigurationLoader<CommentedConfigurationNode> loader,
+            @ConfigDir(sharedRoot = false) Path configDir, GuiceObjectMapperFactory factory) {
         this.logger = logger;
         this.loader = loader;
+        this.configDir = configDir;
+        this.factory = factory;
+        this.configs = new HashMap<>();
         this.phononCommand = new PhononCommand();
         this.phononInjector = Guice.createInjector(new InjectorModule(this, this.phononCommand, new DiscordBot()));
     }
@@ -206,6 +224,29 @@ public class Phonon {
         return Optional.empty();
     }
 
+    @SuppressWarnings("unchecked")
+    public <M extends BaseConfig> M getConfig(Path file, Class<M> clazz, ConfigurationLoader loader) {
+        try {
+            if (!Files.exists(file)) {
+                Files.createFile(file);
+            }
+
+            TypeToken token = TypeToken.of(clazz);
+            ConfigurationNode node = loader.load(ConfigurationOptions.defaults().setObjectMapperFactory(this.factory));
+            M config = (M) node.getValue(token, clazz.newInstance());
+            config.init(loader, node, token);
+            config.save();
+            return config;
+        } catch (IOException | ObjectMappingException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Map<Class<? extends BaseConfig>, BaseConfig> getAllConfigs() {
+        return this.configs;
+    }
+
     /**
      * Gets the {@link DiscoveryModuleContainer}
      *
@@ -217,5 +258,9 @@ public class Phonon {
 
     public Logger getLogger() {
         return this.logger;
+    }
+
+    public Path getConfigDir() {
+        return this.configDir;
     }
 }

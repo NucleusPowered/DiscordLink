@@ -1,4 +1,4 @@
-package io.github.nucleuspowered.phonon.modules.core.command;
+package io.github.nucleuspowered.phonon.modules.core.command.minecraft;
 
 import io.github.nucleuspowered.phonon.internal.command.PhononSubcommand;
 import org.spongepowered.api.command.CommandException;

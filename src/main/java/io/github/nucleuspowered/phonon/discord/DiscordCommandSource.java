@@ -23,16 +23,16 @@ public class DiscordCommandSource implements CommandSource {
     @Inject DiscordBot bot;
 
     private final User user;
-    private final TextChannel channel;
+    private final net.dv8tion.jda.core.entities.MessageChannel channel;
 
-    public DiscordCommandSource(User user, TextChannel channel) {
+    public DiscordCommandSource(User user, net.dv8tion.jda.core.entities.MessageChannel channel) {
         this.user = user;
         this.channel = channel;
     }
 
     @Override
     public String getName() {
-        return channel.getGuild().getMember(user).getEffectiveName();
+        return user.getName();
     }
 
     @Override
@@ -47,12 +47,12 @@ public class DiscordCommandSource implements CommandSource {
 
     @Override
     public String getIdentifier() {
-        return user.getName();
+        return user.getId();
     }
 
     @Override
     public void sendMessage(Text message) {
-        bot.sendMessageToDiscord(message.toPlain(), channel);
+        channel.sendMessage(message.toPlain()).queue();
     }
 
     @Override
