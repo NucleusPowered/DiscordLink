@@ -7,13 +7,13 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
 import java.io.IOException;
 
-public abstract class AbstractConfig<T extends ConfigurationLoader<K>, K extends ConfigurationNode> {
+public class BaseConfig<T extends ConfigurationLoader<K>, K extends ConfigurationNode> {
 
     private T loader;
     private K node;
-    private TypeToken<AbstractConfig> type;
+    private TypeToken<BaseConfig> type;
 
-    public void init(T loader, K node, TypeToken<AbstractConfig> token) {
+    public void init(T loader, K node, TypeToken<BaseConfig> token) {
         this.loader = loader;
         this.node = node;
         this.type = token;
@@ -35,5 +35,4 @@ public abstract class AbstractConfig<T extends ConfigurationLoader<K>, K extends
             e.printStackTrace();
         }
     }
-
 }

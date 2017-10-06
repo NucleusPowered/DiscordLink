@@ -13,7 +13,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import io.github.nucleuspowered.phonon.discord.DiscordBot;
 import io.github.nucleuspowered.phonon.internal.command.PhononCommand;
-import io.github.nucleuspowered.phonon.internal.configurate.AbstractConfig;
+import io.github.nucleuspowered.phonon.internal.configurate.BaseConfig;
 import io.github.nucleuspowered.phonon.qsml.InjectorModule;
 import io.github.nucleuspowered.phonon.qsml.PhononLoggerProxy;
 import io.github.nucleuspowered.phonon.qsml.PhononModuleConstructor;
@@ -68,7 +68,7 @@ public class Phonon {
     private final PhononCommand phononCommand;
     private final Path configDir;
     private GuiceObjectMapperFactory factory;
-    private Map<Class<? extends AbstractConfig>, AbstractConfig> configs;
+    private Map<Class<? extends BaseConfig>, BaseConfig> configs;
     private Injector phononInjector;
     private DiscoveryModuleContainer container;
 
@@ -225,14 +225,14 @@ public class Phonon {
     }
 
     @SuppressWarnings("unchecked")
-    public <M extends AbstractConfig> M getConfig(Path file, Class<M> clazz, ConfigurationLoader loader) {
+    public <M extends BaseConfig> M getConfig(Path file, Class<M> clazz, ConfigurationLoader loader) {
         try {
             if (!Files.exists(file)) {
                 Files.createFile(file);
             }
 
             TypeToken token = TypeToken.of(clazz);
-            ConfigurationNode node = loader.load(ConfigurationOptions.defaults().setObjectMapperFactory(factory));
+            ConfigurationNode node = loader.load(ConfigurationOptions.defaults().setObjectMapperFactory(this.factory));
             M config = (M) node.getValue(token, clazz.newInstance());
             config.init(loader, node, token);
             config.save();
@@ -243,7 +243,7 @@ public class Phonon {
         }
     }
 
-    public Map<Class<? extends AbstractConfig>, AbstractConfig> getAllConfigs() {
+    public Map<Class<? extends BaseConfig>, BaseConfig> getAllConfigs() {
         return this.configs;
     }
 

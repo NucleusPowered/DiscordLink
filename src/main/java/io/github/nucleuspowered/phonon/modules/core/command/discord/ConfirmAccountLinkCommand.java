@@ -33,17 +33,17 @@ public class ConfirmAccountLinkCommand implements IDiscordCommand {
     public void execute(User user, CommandContext args, MessageChannel channel) {
         String code = (String) args.getOne("code").get();
         //link successful
-        if (bot.getCodes().containsKey(code)) {
+        if (this.bot.getCodes().containsKey(code)) {
             org.spongepowered.api.entity.living.player.User spongeUser = Sponge.getServiceManager().provideUnchecked(UserStorageService.class)
                     .get(bot.getCodes().get(code)).get();
             spongeUser.getSubjectData().setOption(SubjectData.GLOBAL_CONTEXT, "discord-user", user.getId());
 
-            //TODO Still need to provide a way to get the Minecraft player from Discord
             AccountConfigData data = (AccountConfigData) this.phonon.getAllConfigs().get(AccountConfigData.class);
-            data.accounts.put(user.getId(), spongeUser.getUniqueId());
+            data.getAccounts().put(user.getId(), spongeUser.getUniqueId());
             data.save();
 
-            channel.sendMessage("You have successfully linked your account to " + spongeUser.getName()).queue();
+            channel.sendMessage("You have successfully linked " + user.getName() + "#" +user.getDiscriminator()
+                    + " to " + spongeUser.getName()).queue();
         } else {
             channel.sendMessage("That is not a valid code!").queue();
         }
