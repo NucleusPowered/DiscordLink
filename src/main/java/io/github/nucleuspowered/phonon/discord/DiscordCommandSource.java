@@ -47,7 +47,7 @@ public class DiscordCommandSource implements CommandSource {
 
     @Override
     public String getIdentifier() {
-        return user.getName();
+        return user.getId();
     }
 
     @Override

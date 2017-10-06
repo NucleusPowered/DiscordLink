@@ -7,6 +7,7 @@ import io.github.nucleuspowered.phonon.discord.DiscordCommandSource;
 import io.github.nucleuspowered.phonon.modules.core.CoreModule;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfig;
 import io.github.nucleuspowered.phonon.modules.core.config.CoreConfigAdapter;
+import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.spongepowered.api.command.args.ArgumentParseException;
@@ -90,13 +91,16 @@ public class CommandListener extends ListenerAdapter {
                     }
 
                     if (args == null) {
-                        event.getChannel().sendMessage(message);
+                        event.getChannel().sendMessage(message).queue();
                     } else {
                         event.getChannel().sendMessage(message + System.lineSeparator() +
                                 config.getPrefix() + commandName + args.getUsage(source).toPlain()).queue();
                     }
                 }
-                event.getMessage().delete().queue();
+
+                if (!(event.getChannel() instanceof PrivateChannel)) {
+                    event.getMessage().delete().queue();
+                }
             }
         }
     }

@@ -34,7 +34,18 @@ public class AccountLinkCommand extends PhononSubcommand {
         }
 
         Player player = (Player) src;
-        int codeLength = 5;
+
+        String code = generateCode(5);
+        while (bot.getCodes().containsKey(code)) {
+            code = generateCode(5);
+        }
+        bot.getCodes().put(code, player.getUniqueId());
+        player.sendMessage(Text.of("Your code is: ", code, ". Send the code in a message to Phonon in discord in order to confirm the link."));
+
+        return CommandResult.success();
+    }
+
+    private String generateCode(int codeLength) {
         SecureRandom random = new SecureRandom();
         StringBuilder sb = new StringBuilder();
 
@@ -42,10 +53,7 @@ public class AccountLinkCommand extends PhononSubcommand {
             sb.append(random.nextInt(9));
         }
 
-        String code = sb.toString();
-        bot.getCodes().put(code, player.getUniqueId());
-        player.sendMessage(Text.of("Your code is: ", code, ". Send the code in a message to Phonon in discord in order to confirm the link."));
-
-        return CommandResult.success();
+        return sb.toString();
     }
+
 }

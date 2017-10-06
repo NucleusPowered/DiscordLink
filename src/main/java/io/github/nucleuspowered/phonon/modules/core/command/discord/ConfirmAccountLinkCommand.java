@@ -5,6 +5,7 @@ import io.github.nucleuspowered.phonon.Phonon;
 import io.github.nucleuspowered.phonon.discord.DiscordBot;
 import io.github.nucleuspowered.phonon.discord.command.BotCommand;
 import io.github.nucleuspowered.phonon.discord.command.IDiscordCommand;
+import io.github.nucleuspowered.phonon.modules.core.config.AccountConfigData;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.spongepowered.api.Sponge;
@@ -38,6 +39,9 @@ public class ConfirmAccountLinkCommand implements IDiscordCommand {
             spongeUser.getSubjectData().setOption(SubjectData.GLOBAL_CONTEXT, "discord-user", user.getId());
 
             //TODO Still need to provide a way to get the Minecraft player from Discord
+            AccountConfigData data = (AccountConfigData) this.phonon.getAllConfigs().get(AccountConfigData.class);
+            data.accounts.put(user.getId(), spongeUser.getUniqueId());
+            data.save();
 
             channel.sendMessage("You have successfully linked your account to " + spongeUser.getName()).queue();
         } else {
