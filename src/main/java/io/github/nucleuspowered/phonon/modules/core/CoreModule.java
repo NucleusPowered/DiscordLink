@@ -21,7 +21,7 @@ public class CoreModule extends ConfigurableModule<CoreConfigAdapter> {
         super.phononEnable();
         this.getBot().onEnable(getPhononPlugin());
         Path path = this.getPhononPlugin().getConfigDir().resolve("account-data.json");
-        AccountConfigData data = this.getPhononPlugin().getConfig(path, AccountConfigData.class,
+        AccountConfigData data = this.getPhononPlugin().createConfig(path, AccountConfigData.class,
                 GsonConfigurationLoader.builder().setPath(path).build());
         this.getPhononPlugin().getAllConfigs().put(AccountConfigData.class, data);
     }

@@ -72,6 +72,7 @@ public class Phonon {
     private Injector phononInjector;
     private DiscoveryModuleContainer container;
 
+
     // Using a map for later implementation of reloadable modules.
     private Multimap<String, Action> reloadables = HashMultimap.create();
 
@@ -120,7 +121,7 @@ public class Phonon {
     public void onReloadEvent(GameReloadEvent event) {
         try {
             reload();
-        } catch (IOException e) {
+        } catch (IOException | ObjectMappingException e) {
             e.printStackTrace();
         }
     }
@@ -149,9 +150,15 @@ public class Phonon {
      *
      * @throws IOException if the config could not be read.
      */
-    public void reload() throws IOException {
+    @SuppressWarnings("unchecked")
+    public void reload() throws IOException, ObjectMappingException {
         this.container.reloadSystemConfig();
         reloadables.values().forEach(Action::action);
+        for (Map.Entry<Class<? extends BaseConfig>, BaseConfig> entry : this.configs.entrySet()) {
+            BaseConfig key = entry.getValue();
+            BaseConfig config = (BaseConfig) key.getLoader().load().getValue(key.getType());
+            entry.setValue(config);
+        }
     }
 
     /**
@@ -224,16 +231,25 @@ public class Phonon {
         return Optional.empty();
     }
 
+    /**
+     * Creates a config object of the specified type
+     *
+     * @param file The {@link Path} where the config file will be created
+     * @param clazz The {@link Class} of the object that is being retrieved
+     * @param loader The {@link ConfigurationLoader} that this config will use
+     * @param <M> The type of object which will be created
+     * @return The created config object, or null if an exception was thrown
+     */
     @SuppressWarnings("unchecked")
-    public <M extends BaseConfig> M getConfig(Path file, Class<M> clazz, ConfigurationLoader loader) {
+    public <M extends BaseConfig> M createConfig(Path file, Class<M> clazz, ConfigurationLoader loader) {
         try {
             if (!Files.exists(file)) {
                 Files.createFile(file);
             }
 
-            TypeToken token = TypeToken.of(clazz);
+            TypeToken<M> token = TypeToken.of(clazz);
             ConfigurationNode node = loader.load(ConfigurationOptions.defaults().setObjectMapperFactory(this.factory));
-            M config = (M) node.getValue(token, clazz.newInstance());
+            M config = node.getValue(token, clazz.newInstance());
             config.init(loader, node, token);
             config.save();
             return config;

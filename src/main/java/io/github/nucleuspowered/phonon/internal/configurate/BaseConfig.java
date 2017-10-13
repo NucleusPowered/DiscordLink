@@ -28,11 +28,15 @@ public class BaseConfig<T extends ConfigurationLoader<K>, K extends Configuratio
         }
     }
 
-    public void load() {
-        try {
-            this.node = this.loader.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public T getLoader() {
+        return this.loader;
+    }
+
+    public K getNode() {
+        return this.node;
+    }
+
+    public TypeToken<BaseConfig> getType() {
+        return this.type;
     }
 }
