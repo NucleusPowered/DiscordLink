@@ -30,7 +30,7 @@ repositories {
     }
 }
 
-def qsmlDep = 'uk.co.drnaylor:quickstart-moduleloader:0.8.2'
+def qsmlDep = 'uk.co.drnaylor:quickstart-moduleloader:0.9.0'
 def jdaDep = 'net.dv8tion:JDA:3.3.0_260'
 def spongeapi = '5.1.0'
 
