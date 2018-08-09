@@ -16,6 +16,7 @@ import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.args.CommandElement;
 import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.args.parsing.InputTokenizer;
+import org.spongepowered.api.scheduler.Task;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -56,7 +57,7 @@ public class CommandListener extends ListenerAdapter {
         CoreConfig config = this.phononPlugin.getConfigAdapter(CoreModule.ID, CoreConfigAdapter.class).get().getNodeOrDefault();
 
         if (event.getMessage().getRawContent().startsWith(config.getPrefix()) && !event.getMessage().getAuthor().isBot()) {
-            DiscordCommandSource source = new DiscordCommandSource(event.getAuthor(), event.getChannel());
+            DiscordCommandSource source = new DiscordCommandSource(phononPlugin, event.getAuthor(), event.getChannel());
 
             int end = event.getMessage().getRawContent().indexOf(" ");
             String commandName;
@@ -83,7 +84,8 @@ public class CommandListener extends ListenerAdapter {
                         commandArgs.next();
                         throw commandArgs.createError(t("Invalid arguments!"));
                     }
-                    command.execute(event.getAuthor(), context, event.getChannel());
+                    //Discord listener is off main-thread, execute the command on main-thread
+                    Task.builder().execute(() -> command.execute(event.getAuthor(), context, event.getChannel())).submit(phononPlugin);
                 } catch (ArgumentParseException e) {
                     String message = "Invalid Arguments";
                     if (e.getMessage() != null) {

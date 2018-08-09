@@ -32,7 +32,7 @@ repositories {
 
 def qsmlDep = 'uk.co.drnaylor:quickstart-moduleloader:0.9.0'
 def jdaDep = 'net.dv8tion:JDA:3.3.0_260'
-def spongeapi = '5.1.0'
+def spongeapi = '7.1.0-SNAPSHOT'
 
 dependencies {
     compile('org.spongepowered:spongeapi:' + spongeapi)
